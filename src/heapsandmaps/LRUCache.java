@@ -2,6 +2,7 @@ package heapsandmaps;
 
 import java.util.HashMap;
 import java.util.Map;
+import linkedlist.ListNode;
 
 public class LRUCache {
 
@@ -12,19 +13,25 @@ public class LRUCache {
 //        + " 14 S 5 12 G 5 G 7 G 15 G 5 G 6 G 10 S 7 13 G 14 S 8 9 G "
 //        + "4 S 6 11 G 9 S 6 12 G 3");
 //    run("6 2 S 2 1 S 1 1 S 2 3 S 4 1 G 1 G 2");
-    run("59 7 S 2 1 S 1 10 S 8 13 G 12 S 2 8 G 11 G 7 S 14 7 S 12 9 S 7 10 G "
-        + "11 S 9 3 S 14 15 G 15 G 9 S 4 13 G 3 S 13 7 G 2 S 5 9 G 6 G 13 S 4 5 S 3 2 "
-        + "S 4 12 G 13 G 7 S 9 7 G 3 G 6 G 2 S 8 4 S 8 9 S 1 4 S 2 9 S 8 8 G 13 G 3 G "
-        + "13 G 6 S 3 8 G 14 G 4 S 5 6 S 10 15 G 12 S 13 5 S 10 9 S 3 12 S 14 15 G 4 S "
-        + "10 5 G 5 G 15 S 7 6 G 1 S 5 12 S 1 6 S 11 8");
+    System.out.println(run("95 11 S 1 1 G 11 G 11 S 3 10 G 10 S 3 12 S 1 15 S 4 12 G 15 S 8 6 S "
+        + "5 3 G 2 G 12 G 10 S 11 5 G 7 S 5 1 S 15 5 G 2 S 13 8 G 3 S 14 2 S 12 11 "
+        + "S 7 10 S 5 4 G 9 G 2 S 13 5 S 10 14 S 9 11 G 5 S 13 11 S 8 12 G 10 S 5 "
+        + "12 G 8 G 11 G 8 S 9 11 S 10 6 S 7 12 S 1 7 G 10 G 9 G 15 G 15 G 3 S 15 "
+        + "4 G 10 G 14 G 10 G 12 G 12 S 14 7 G 11 S 9 10 S 6 12 S 14 11 G 3 S 7 5 "
+        + "S 1 14 S 2 8 S 11 12 S 8 4 G 3 S 13 15 S 1 4 S 5 3 G 3 G 9 G 14 G 9 S "
+        + "13 10 G 14 S 3 9 G 8 S 3 5 S 6 4 S 10 3 S 11 13 G 8 G 4 S 2 11 G 2 G 9 "
+        + "S 15 1 G 9 S 7 8 S 4 3 G 3 G 1 S 8 4 G 13 S 1 2 G 3"));
+    System.out.println("-1 -1 -1 -1 -1 -1 -1 -1 -1 12 -1 -1 4 14 12 5 12 6 11 -1 -1 12 6 -1 "
+        + "6 11 11 5 12 12 12 10 11 10 11 4 4 -1 11 10 10 5 -1 -1 5");
   }
 
-  public static void run(String arg) {
+  public static String run(String arg) {
     String[] arguments = arg.split(" ");
     int noOfOp = Integer.valueOf(arguments[0]);
     int capacity = Integer.valueOf(arguments[1]);
     int i = 2;
     LRUCache lruCache = new LRUCache(capacity);
+    String ans = "";
     while (i < arguments.length) {
       String opn = arguments[i];
       if (opn.equals("S")) {
@@ -34,52 +41,50 @@ public class LRUCache {
         i+=3;
       } else {
         int n1 = Integer.valueOf(arguments[i + 1]);
-        System.out.println(lruCache.get(n1));
+        ans += lruCache.get(n1) + " ";
         i+=2;
       }
     }
+
+    return ans;
   }
 
   int capacity;
   Map<Integer, DoubleEndedQueueNode> dataMap;
-//  DoubleEndedQueueNode head;
-//  DoubleEndedQueueNode tail;
   Deque dq;
 
   public LRUCache(int capacity) {
     this.capacity = capacity;
     this.dataMap = new HashMap<>();
-//    this.head = null;
-//    this.tail = null;
     this.dq = new Deque();
   }
 
   public int get(int key) {
+
+    System.out.print("[G " + key + "] ");
+
     if (dataMap.containsKey(key)) {
       DoubleEndedQueueNode dqn = dataMap.get(key);
-//      if (dqn.left != null) {
-//        dqn.left.right = dqn.right;
-//        if (dqn.right != null) {
-//          dqn.right.left = dqn.left;
-//        }
-//        dqn.left = null;
-//        dqn.right = head;
-//        head = dqn;
-//      }
       dq.moveNodeToHead(dqn);
+      dq.printList(capacity);
       return dqn.val;
     }
 
+    dq.printList(capacity);
     return -1;
   }
 
   public void set(int key, int value) {
+
+    System.out.print("[S " + key + ", " + value + "] ");
+
     if (dataMap.containsKey(key)) {
       DoubleEndedQueueNode dqn = dataMap.get(key);
       dqn.val = value;
       dq.moveNodeToHead(dqn);
     } else {
       if (dataMap.keySet().size() == capacity) {
+        dataMap.remove(dq.tail.key);
         dq.deleteTail();
       }
 
@@ -90,43 +95,7 @@ public class LRUCache {
       dataMap.put(key, dqn);
     }
 
-//    if (dataMap.containsKey(key)) {
-//      DoubleEndedQueueNode dqn = dataMap.get(key);
-//      dqn.val = value;
-//      if (dqn.left != null) {
-//        dqn.left.right = dqn.right;
-//        if (dqn.right != null) {
-//          dqn.right.left = dqn.left;
-//        } else {
-//          tail = dqn.left;
-//          tail.right = null;
-//        }
-//        dqn.left = null;
-//        dqn.right = head;
-//        head.left = dqn;
-//        head = dqn;
-//      }
-//    } else {
-//      DoubleEndedQueueNode dqn = new DoubleEndedQueueNode();
-//      dataMap.put(key, dqn);
-//      dqn.key = key;
-//      dqn.val = value;
-//      dqn.right = head;
-//      if (head != null) {
-//        head.left = dqn;
-//      }
-//      head = dqn;
-//      if (tail == null) {
-//        tail = dqn;
-//      }
-//
-//      if (dataMap.keySet().size() > capacity) {
-//        dataMap.remove(tail.key);
-//        tail = tail.left;
-//        if (tail != null)
-//          tail.right = null;
-//      }
-//    }
+    dq.printList(capacity);
   }
 
   public static class Deque {
@@ -161,6 +130,7 @@ public class LRUCache {
       }
 
       node.right = head;
+      node.left = null;
       head.left = node;
       head = node;
     }
@@ -173,6 +143,21 @@ public class LRUCache {
         tail.left.right = null;
         tail = tail.left;
       }
+    }
+
+    public void printList(int capacity) {
+      DoubleEndedQueueNode node = head;
+      while (node != null && capacity > 0) {
+        System.out.print(node.key + "["
+            + (node.left != null ? node.left.key : null) + ", "
+            + (node.right != null ? node.right.key : null) + "]");
+        if (node.right != null) {
+          System.out.print(" -> ");
+        }
+        node = node.right;
+        capacity --;
+      }
+      System.out.println();
     }
   }
 
